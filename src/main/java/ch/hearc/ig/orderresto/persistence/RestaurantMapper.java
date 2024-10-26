@@ -1,6 +1,7 @@
 package ch.hearc.ig.orderresto.persistence;
 
 import ch.hearc.ig.orderresto.business.Address;
+import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
 
 import java.sql.*;
@@ -73,6 +74,18 @@ public class RestaurantMapper {
             }
         }
         return restaurants;
+    }
+
+    /**
+     * Mapper interactif : facilitation de l'obtention d'un produit associés à un restaurant depuis RestaurantMapper
+     * en déléguant le chargement à ProductMapper.
+     * @param restaurantId
+     * @return
+     * @throws SQLException
+     */
+    public List<Product> getProductsForRestaurant(long restaurantId) throws SQLException {
+        ProductMapper productMapper = new ProductMapper();
+        return productMapper.findProductsByRestaurantId(restaurantId);
     }
 
     /**
