@@ -5,16 +5,23 @@ import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.persistence.FakeDb;
+import ch.hearc.ig.orderresto.persistence.RestaurantMapper;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class OrderCLI extends AbstractCLI {
 
+    private final RestaurantMapper restaurantMapper;
+
+    public OrderCLI(RestaurantMapper restaurantMapper) {
+        this.restaurantMapper = restaurantMapper;
+    }
+
     public Order createNewOrder() {
 
         this.ln("======================================================");
-        Restaurant restaurant = (new RestaurantCLI()).getExistingRestaurant();
+        Restaurant restaurant = (new RestaurantCLI(restaurantMapper)).getExistingRestaurant();
 
         Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
 
