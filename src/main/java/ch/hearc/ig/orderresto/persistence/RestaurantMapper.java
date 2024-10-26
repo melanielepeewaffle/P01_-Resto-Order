@@ -22,11 +22,11 @@ public class RestaurantMapper {
 
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery("SELECT SEQ_RESTAURANT.CURRVAL FROM DUAL")) {
-                if (rs.next()) {
-                    long generatedId = rs.getLong(1);
-                    restaurant.setId(generatedId);
-                    restaurantIdentityMap.put(generatedId, restaurant); // Màj. de l'identity Map
-                }
+
+                long generatedId = DataBaseUtils.getGeneratedKey(rs);
+                restaurant.setId(generatedId);
+                restaurantIdentityMap.put(generatedId, restaurant); // Màj. de l'identity Map
+
             }
         }
     }
