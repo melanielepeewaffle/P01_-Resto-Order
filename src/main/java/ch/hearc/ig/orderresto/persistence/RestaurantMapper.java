@@ -4,6 +4,8 @@ import ch.hearc.ig.orderresto.business.Address;
 import ch.hearc.ig.orderresto.business.Restaurant;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RestaurantMapper {
     public void insert(Restaurant restaurant) throws SQLException {
@@ -57,6 +59,20 @@ public class RestaurantMapper {
             }
         }
         return null; // Si le restaurant n'est pas trouvé
+    }
+
+    public List<Restaurant> findAll() throws SQLException {
+        List<Restaurant> restaurants = new ArrayList<>();
+        String sql = "SELECT * FROM RESTAURANT";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                restaurants.add(mapResultSetToRestaurant(rs));
+            }
+        }
+        return restaurants;
     }
 
     /**
