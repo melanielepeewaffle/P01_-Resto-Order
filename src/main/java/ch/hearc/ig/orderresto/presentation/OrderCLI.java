@@ -4,9 +4,11 @@ import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
+import ch.hearc.ig.orderresto.persistence.DataBaseConnection;
 import ch.hearc.ig.orderresto.persistence.FakeDb;
 import ch.hearc.ig.orderresto.persistence.RestaurantMapper;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -19,45 +21,67 @@ public class OrderCLI extends AbstractCLI {
     }
 
     public Order createNewOrder() {
+        try {
+            DataBaseConnection.beginTransaction(); // Car la création de commandes impliquent plusieurs entités.
 
-        this.ln("======================================================");
-        Restaurant restaurant = (new RestaurantCLI(restaurantMapper)).getExistingRestaurant();
+            this.ln("======================================================");
+            Restaurant restaurant = (new RestaurantCLI(restaurantMapper)).getExistingRestaurant();
 
-        Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
+            Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
 
-        this.ln("======================================================");
-        this.ln("0. Annuler");
-        this.ln("1. Je suis un client existant");
-        this.ln("2. Je suis un nouveau client");
+            this.ln("======================================================");
+            this.ln("0. Annuler");
+            this.ln("1. Je suis un client existant");
+            this.ln("2. Je suis un nouveau client");
 
-        int userChoice = this.readIntFromUser(2);
-        if (userChoice == 0) {
-            (new MainCLI(restaurantMapper)).run();
-            return null;
+            int userChoice = this.readIntFromUser(2);
+            if (userChoice == 0) {
+                (new MainCLI(restaurantMapper)).run();
+                return null;
+            }
+
+            CustomerCLI customerCLI = new CustomerCLI();
+            Customer customer = null;
+            if (userChoice == 1) {
+                customer = customerCLI.getExistingCustomer();
+            } else {
+                customer = customerCLI.createNewCustomer();
+                FakeDb.addCustomer(customer);
+            }
+
+            // Possible improvements:
+            // - ask whether it's a takeAway order or not?
+            // - Ask user for multiple products?
+            Order order = new Order(null, customer, restaurant, false, LocalDateTime.now());
+            order.addProduct(product);
+
+            // Actually place the order (this could/should be in a different method?)
+            product.addOrder(order);
+            restaurant.addOrder(order);
+            customer.addOrder(order);
+
+            this.ln("Merci pour votre commande!");
+
+            return order;
+
+        } catch (SQLException e) {
+            try {
+                DataBaseConnection.rollbackTransaction();
+                this.ln("Erreur lors de la création de la commande. Commande annulée.");
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+
+            e.printStackTrace();
+            return null; // Pas de commande valide à retourner à cause de l'échec de l'opération.
+
+        } finally {
+            try {
+                DataBaseConnection.closeConnection(); // Ferme la connexion après la transaction
+            } catch (SQLException closeEx) {
+                closeEx.printStackTrace();
+            }
         }
-        CustomerCLI customerCLI = new CustomerCLI();
-        Customer customer = null;
-        if (userChoice == 1) {
-            customer = customerCLI.getExistingCustomer();
-        } else {
-            customer = customerCLI.createNewCustomer();
-            FakeDb.addCustomer(customer);
-        }
-
-        // Possible improvements:
-        // - ask whether it's a takeAway order or not?
-        // - Ask user for multiple products?
-        Order order = new Order(null, customer, restaurant, false, LocalDateTime.now());
-        order.addProduct(product);
-
-        // Actually place the order (this could/should be in a different method?)
-        product.addOrder(order);
-        restaurant.addOrder(order);
-        customer.addOrder(order);
-
-        this.ln("Merci pour votre commande!");
-
-        return order;
     }
 
     public Order selectOrder() {
