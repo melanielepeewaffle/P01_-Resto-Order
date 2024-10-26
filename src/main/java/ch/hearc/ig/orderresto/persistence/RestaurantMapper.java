@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RestaurantMapper {
+
+    private final IdentityMap<Restaurant> restaurantIdentityMap = new IdentityMap<>();
+
     public void insert(Restaurant restaurant) throws SQLException {
         String sql = "INSERT INTO RESTAURANT (NOM, CODE_POSTAL, LOCALITE, RUE, NUM_RUE, PAYS) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DataBaseConnection.getConnection();
@@ -20,7 +23,9 @@ public class RestaurantMapper {
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery("SELECT SEQ_RESTAURANT.CURRVAL FROM DUAL")) {
                 if (rs.next()) {
-                    restaurant.setId(rs.getLong(1));
+                    long generatedId = rs.getLong(1);
+                    restaurant.setId(generatedId);
+                    restaurantIdentityMap.put(generatedId, restaurant); // Màj. de l'identity Map
                 }
             }
         }
@@ -34,6 +39,7 @@ public class RestaurantMapper {
             prepareStatementForRestaurant(ps, restaurant);
             ps.setLong(7, restaurant.getId());
             ps.executeUpdate();
+            restaurantIdentityMap.put(restaurant.getId(), restaurant);  // Màj. de l'identity Map
         }
     }
 
@@ -44,10 +50,17 @@ public class RestaurantMapper {
 
             ps.setLong(1, id);
             ps.executeUpdate();
+            restaurantIdentityMap.clear(); // Supprime l'entrée de l'identity Map
         }
     }
 
     public Restaurant findById(long id) throws SQLException {
+        // 1. Vérification si l'objet est déjà dans l'identity Map
+        if (restaurantIdentityMap.contains(id)) {
+            return restaurantIdentityMap.get(id); // Si oui, retourne l'objet directement
+        }
+
+        // 2. Requête SQL pour charger l'objet depuis la DB
         String sql = "SELECT * FROM RESTAURANT WHERE NUMERO = ?";
         try (Connection conn = DataBaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -55,7 +68,9 @@ public class RestaurantMapper {
             ps.setLong(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return mapResultSetToRestaurant(rs);
+                    Restaurant restaurant = mapResultSetToRestaurant(rs);
+                    restaurantIdentityMap.put(id, restaurant); // Ajoute dans l'identity map
+                    return restaurant;
                 }
             }
         }
@@ -70,7 +85,15 @@ public class RestaurantMapper {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                restaurants.add(mapResultSetToRestaurant(rs));
+                long restaurantId = rs.getLong("NUMERO");
+
+                if (restaurantIdentityMap.contains(restaurantId)) { // Vérifie si l'identity Map a déjà cet objet
+                    restaurants.add(restaurantIdentityMap.get(restaurantId));
+                } else {
+                    Restaurant restaurant = mapResultSetToRestaurant(rs);
+                    restaurantIdentityMap.put(restaurantId, restaurant);
+                    restaurants.add(restaurant);
+                }
             }
         }
         return restaurants;
