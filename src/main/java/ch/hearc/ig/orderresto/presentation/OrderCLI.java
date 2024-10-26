@@ -32,7 +32,7 @@ public class OrderCLI extends AbstractCLI {
 
         int userChoice = this.readIntFromUser(2);
         if (userChoice == 0) {
-            (new MainCLI()).run();
+            (new MainCLI(restaurantMapper)).run();
             return null;
         }
         CustomerCLI customerCLI = new CustomerCLI();
