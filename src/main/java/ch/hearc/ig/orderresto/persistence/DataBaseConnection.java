@@ -3,6 +3,7 @@ package ch.hearc.ig.orderresto.persistence;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DataBaseConnection {
     // Dans le cadre d'un projet collaboratif, les variables d'environnement paraissent plus appropriés.
@@ -10,7 +11,7 @@ public class DataBaseConnection {
     private static final String USER = System.getenv("DB_USERNAME");
     private static final String PASSWORD = System.getenv("DB_PASSWORD");
 
-    // Instance de connexion unique
+    // Instance de connexion unique - Singleton
     private static Connection connection;
 
     // Constructeur privé pour empêcher l'instanciation de cette classe
@@ -23,10 +24,15 @@ public class DataBaseConnection {
      * @throws SQLException
      */
     public static Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        }
-        return connection;
+        Properties props = new Properties();
+        props.put("user", USER);
+        props.put("password", PASSWORD);
+
+        // Permet la résolution des interruptions automatiques.
+        props.put("oracle.net.CONNECT_TIMEOUT", "5000"); // Timeout pour connexion initiale
+        props.put("oracle.jdbc.ReadTimeout", "10000");   // Timeout pour les lectures
+
+        return DriverManager.getConnection(URL, props);
     }
 
     public static void beginTransaction() throws SQLException {
