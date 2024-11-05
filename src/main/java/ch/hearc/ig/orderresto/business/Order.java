@@ -29,9 +29,14 @@ public class Order {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Customer getCustomer() {
         return customer;
     }
+
 
     public Restaurant getRestaurant() {
         return restaurant;
@@ -39,6 +44,10 @@ public class Order {
 
     public Set<Product> getProducts() {
         return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
     }
 
     public Boolean getTakeAway() {

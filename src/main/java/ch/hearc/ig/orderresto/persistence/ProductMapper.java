@@ -43,7 +43,24 @@ public class ProductMapper {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    products.add(mapResultSetToProduct(rs));
+                    products.add(mapResultSetToProductFromRestaurant(rs));
+                }
+            }
+        }
+        return products;
+    }
+
+    public List<Product> findProductByOrderId(Long orderId) throws SQLException {
+        List<Product> products = new ArrayList<>();
+        String sql  = "SELECT * FROM PRODUIT_COMMANDE WHERE FK_COMMANDE = ?";
+
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, orderId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    products.add(mapResultSetToProductFromRestaurant(rs));
                 }
             }
         }
@@ -57,7 +74,7 @@ public class ProductMapper {
         ps.setString(4, product.getDescription());
     }
 
-    private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
+    private Product mapResultSetToProductFromRestaurant(ResultSet rs) throws SQLException {
         // Utilisation de RestaurantMapper pour charger le restaurant associé via sa PK pour la relation entre
         // Product et Restaurant.
         Restaurant restaurant = new RestaurantMapper().findById(rs.getLong("FK_RESTO"));
