@@ -19,6 +19,10 @@ public abstract class Customer {
         this.address = address;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }
@@ -41,5 +45,17 @@ public abstract class Customer {
 
     public void addOrder(Order order) {
         this.orders.add(order);
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 }
