@@ -115,7 +115,7 @@ public class OrderMapper {
         LocalDateTime orderDate = sqlDate.toLocalDate().atStartOfDay();
 
 
-        long customerId = rs.getLong("FK_CLIENT");
+        int customerId = rs.getInt("FK_CLIENT");
         Customer customer = new CustomerMapper().findById(customerId);
 
         long restaurantId = rs.getLong("FK_RESTO");
