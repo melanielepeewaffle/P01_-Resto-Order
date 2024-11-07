@@ -25,9 +25,9 @@ public class CustomerMapper {
         }
     }
 
-    private List<Customer> select(String field, int value) {
+    private List<Customer> select(String field, long value) {
         try (PreparedStatement ps = prepareStatementSelect(field)) {
-            ps.setInt(1, value);
+            ps.setLong(1, value);
             return executeQuerySelect(ps);
         } catch (SQLException e) {
             System.err.println(e.getErrorCode() + ": " + e.getMessage());
@@ -57,7 +57,7 @@ public class CustomerMapper {
         return customers;
     }
 
-    public Customer findById(int id) {
+    public Customer findById(long id) {
         List<Customer> result = select("NUMERO", id);
         if (result == null) {
             return null;
