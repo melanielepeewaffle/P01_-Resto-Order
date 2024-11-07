@@ -1,7 +1,6 @@
 package ch.hearc.ig.orderresto.persistence;
 
 import ch.hearc.ig.orderresto.business.Customer;
-import ch.hearc.ig.orderresto.business.PrivateCustomer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,10 +15,9 @@ import static ch.hearc.ig.orderresto.persistence.PrivateCustomerMapper.PrivateCu
 public class CustomerMapper {
 
 
-
     private List<Customer> select(String field, String value) {
-        try (PreparedStatement ps = prepareStatementSelect(field)){
-            ps.setString(1,value);
+        try (PreparedStatement ps = prepareStatementSelect(field)) {
+            ps.setString(1, value);
             return executeQuerySelect(ps);
         } catch (SQLException e) {
             System.err.println(e.getErrorCode() + ": " + e.getMessage());
@@ -28,8 +26,8 @@ public class CustomerMapper {
     }
 
     private List<Customer> select(String field, int value) {
-        try (PreparedStatement ps = prepareStatementSelect(field)){
-            ps.setInt(1,value);
+        try (PreparedStatement ps = prepareStatementSelect(field)) {
+            ps.setInt(1, value);
             return executeQuerySelect(ps);
         } catch (SQLException e) {
             System.err.println(e.getErrorCode() + ": " + e.getMessage());
@@ -70,7 +68,7 @@ public class CustomerMapper {
     public void delete(Customer customer) throws SQLException {
         String sql = "DELETE FROM CLIENT WHERE NUMERO = ?";
         try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)){
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, customer.getId());
             ps.executeUpdate();

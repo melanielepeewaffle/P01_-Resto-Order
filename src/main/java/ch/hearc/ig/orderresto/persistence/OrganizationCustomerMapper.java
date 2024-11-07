@@ -1,9 +1,7 @@
 package ch.hearc.ig.orderresto.persistence;
 
 import ch.hearc.ig.orderresto.business.Address;
-import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.OrganizationCustomer;
-import ch.hearc.ig.orderresto.business.PrivateCustomer;
 
 import java.sql.*;
 

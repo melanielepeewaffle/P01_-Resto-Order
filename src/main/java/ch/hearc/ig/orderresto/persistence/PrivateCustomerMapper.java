@@ -42,7 +42,6 @@ public class PrivateCustomerMapper {
     }
 
 
-
     public void insert(PrivateCustomer customer) throws SQLException {
         String sql = "INSERT INTO CLIENT (NUMERO, EMAIL, TELEPHONE, NOM, CODE_POSTAL, LOCALITE, RUE, NUM_RUE, PAYS, EST_UNE_FEMME, PRENOM, TYPE) VALUES (SEQ_CLIENT.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DataBaseConnection.getConnection();
