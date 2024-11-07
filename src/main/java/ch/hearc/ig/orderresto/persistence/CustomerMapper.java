@@ -58,7 +58,11 @@ public class CustomerMapper {
     }
 
     public Customer findById(int id) {
-        return select("NUMERO", id).get(0);
+        List<Customer> result = select("NUMERO", id);
+        if (result == null) {
+            return null;
+        }
+        return result.get(0);
     }
 
     public List<Customer> findByEmail(String email) {
