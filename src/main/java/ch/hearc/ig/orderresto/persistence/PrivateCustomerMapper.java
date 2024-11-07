@@ -41,6 +41,8 @@ public class PrivateCustomerMapper {
         ps.setString(11, PrivateCustomerTypeDB);
     }
 
+
+
     public void insert(PrivateCustomer customer) throws SQLException {
         String sql = "INSERT INTO CLIENT (NUMERO, EMAIL, TELEPHONE, NOM, CODE_POSTAL, LOCALITE, RUE, NUM_RUE, PAYS, EST_UNE_FEMME, PRENOM, TYPE) VALUES (SEQ_CLIENT.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DataBaseConnection.getConnection();
@@ -55,6 +57,17 @@ public class PrivateCustomerMapper {
                     customer.setId(rs.getLong(1));
                 }
             }
+        }
+    }
+
+    public void update(PrivateCustomer customer) throws SQLException {
+        String sql = "UPDATE CLIENT SET EMAIL = ?, TELEPHONE = ?, NOM = ?, CODE_POSTAL = ?, LOCALITE = ?, RUE = ?, NUM_RUE = ?, PAYS = ?, EST_UNE_FEMME = ?, PRENOM = ?, TYPE = ? WHERE NUMERO = ?";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            prepareStatementForPrivateCustomer(ps, customer);
+            ps.setLong(12, customer.getId());
+            ps.executeUpdate();
         }
     }
 

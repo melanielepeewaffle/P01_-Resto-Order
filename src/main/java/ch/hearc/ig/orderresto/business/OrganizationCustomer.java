@@ -18,4 +18,12 @@ public class OrganizationCustomer extends Customer {
     public String getLegalForm() {
         return legalForm;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLegalForm(String legalForm) {
+        this.legalForm = legalForm;
+    }
 }

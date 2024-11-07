@@ -56,4 +56,15 @@ public class OrganizationCustomerMapper {
             }
         }
     }
+
+    public void update(OrganizationCustomer customer) throws SQLException {
+        String sql = "UPDATE CLIENT SET EMAIL = ?, TELEPHONE = ?, NOM = ?, CODE_POSTAL = ?, LOCALITE = ?, RUE = ?, NUM_RUE = ?, PAYS = ?, FORME_SOCIALE = ?, TYPE = ? WHERE NUMERO = ?";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            prepareStatementForOrganizationCustomer(ps, customer);
+            ps.setLong(11, customer.getId());
+            ps.executeUpdate();
+        }
+    }
 }
