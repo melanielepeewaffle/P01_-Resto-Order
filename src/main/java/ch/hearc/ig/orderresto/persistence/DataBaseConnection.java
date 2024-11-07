@@ -34,7 +34,6 @@ public class DataBaseConnection {
         // Permet la résolution des interruptions automatiques.
         props.put("oracle.net.CONNECT_TIMEOUT", "5000"); // Timeout pour connexion initiale
         props.put("oracle.jdbc.ReadTimeout", "10000");   // Timeout pour les lectures
-
         return DriverManager.getConnection(URL, props);
     }
 

@@ -13,6 +13,18 @@ public class PrivateCustomer extends Customer {
         this.lastName = lastName;
     }
 
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
     public String getGender() {
         return gender;
     }
