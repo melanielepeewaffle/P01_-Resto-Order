@@ -37,17 +37,12 @@ public class Order {
         return customer;
     }
 
-
     public Restaurant getRestaurant() {
         return restaurant;
     }
 
     public Set<Product> getProducts() {
         return products;
-    }
-
-    public void setProducts(Set<Product> products) {
-        this.products = products;
     }
 
     public Boolean getTakeAway() {
