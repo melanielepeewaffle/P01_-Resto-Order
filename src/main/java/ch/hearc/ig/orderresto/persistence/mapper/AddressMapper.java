@@ -1,4 +1,4 @@
-package ch.hearc.ig.orderresto.persistence;
+package ch.hearc.ig.orderresto.persistence.mapper;
 
 import ch.hearc.ig.orderresto.business.Address;
 

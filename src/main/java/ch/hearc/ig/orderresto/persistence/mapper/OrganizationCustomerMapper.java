@@ -1,8 +1,10 @@
-package ch.hearc.ig.orderresto.persistence;
+package ch.hearc.ig.orderresto.persistence.mapper;
 
 import ch.hearc.ig.orderresto.business.Address;
 import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.OrganizationCustomer;
+import ch.hearc.ig.orderresto.persistence.util.DataBaseConnection;
+import ch.hearc.ig.orderresto.persistence.util.DataBaseUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

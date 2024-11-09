@@ -1,4 +1,4 @@
-package ch.hearc.ig.orderresto.persistence;
+package ch.hearc.ig.orderresto.persistence.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

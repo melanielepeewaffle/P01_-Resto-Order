@@ -1,4 +1,4 @@
-package ch.hearc.ig.orderresto.persistence;
+package ch.hearc.ig.orderresto.persistence.util;
 
 import java.util.HashMap;
 import java.util.Map;
