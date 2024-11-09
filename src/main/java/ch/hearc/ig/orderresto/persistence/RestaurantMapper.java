@@ -11,13 +11,16 @@ import java.util.List;
 public class RestaurantMapper {
 
     private final IdentityMap<Restaurant> restaurantIdentityMap = new IdentityMap<>();
+    private final AddressMapper addressMapper = new AddressMapper();
 
     public void insert(Restaurant restaurant) throws SQLException {
         String sql = "INSERT INTO RESTAURANT (NOM, CODE_POSTAL, LOCALITE, RUE, NUM_RUE, PAYS) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DataBaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            prepareStatementForRestaurant(ps, restaurant);
+            ps.setString(1, restaurant.getName());
+            // Préparation de l'adresse à partir de l'index 2 pour lire les champs d'adresse du ResultSet
+            addressMapper.prepareStatementForAddress(ps, restaurant.getAddress(), 2);
             ps.executeUpdate();
 
             try (Statement stmt = conn.createStatement();
@@ -36,7 +39,8 @@ public class RestaurantMapper {
         try (Connection conn = DataBaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            prepareStatementForRestaurant(ps, restaurant);
+            ps.setString(1, restaurant.getName());
+            addressMapper.prepareStatementForAddress(ps, restaurant.getAddress(), 2); // Préparation de l'adresse
             ps.setLong(7, restaurant.getId());
             ps.executeUpdate();
             restaurantIdentityMap.put(restaurant.getId(), restaurant);  // Màj. de l'identity Map
@@ -112,37 +116,15 @@ public class RestaurantMapper {
     }
 
     /**
-     * Préparation de la requête pour insert/update d'un Restaurant.
-     * @param ps
-     * @param restaurant
-     * @throws SQLException
-     */
-    private void prepareStatementForRestaurant(PreparedStatement ps, Restaurant restaurant) throws SQLException {
-        ps.setString(1, restaurant.getName());
-        ps.setString(2, restaurant.getAddress().getPostalCode());
-        ps.setString(3, restaurant.getAddress().getLocality());
-        ps.setString(4, restaurant.getAddress().getStreet());
-        ps.setString(5, restaurant.getAddress().getStreetNumber());
-        ps.setString(6, restaurant.getAddress().getCountryCode());
-    }
-
-    /**
      * Conversion d'une ligne de ResultSet en un objet Restaurant.
-     * --> Création d'une instance de Address à partir des données du ResultSet et l'utilise pour initialiser un objet
-     *     Restaurant.
-     *     Cela permet de simplifier le code en cas d'adaptation dans la structure de Restaurant ou Address
+     * Utilise AddressMapper pour créer l'instance d'Address à partir des données du ResultSet.
      * @param rs
      * @return
      * @throws SQLException
      */
     private Restaurant mapResultSetToRestaurant(ResultSet rs) throws SQLException {
-        Address address = new Address(
-                rs.getString("PAYS"),
-                rs.getString("CODE_POSTAL"),
-                rs.getString("LOCALITE"),
-                rs.getString("RUE"),
-                rs.getString("NUM_RUE")
-        );
+        Address address = addressMapper.mapResultSetToAddress(rs, 2); // Mapping de l'addresse à partir du ResultSet
+
         return new Restaurant(
                 rs.getLong("NUMERO"),
                 rs.getString("NOM"),
