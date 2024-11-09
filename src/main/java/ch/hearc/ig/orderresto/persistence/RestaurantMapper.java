@@ -12,6 +12,16 @@ public class RestaurantMapper {
 
     private final IdentityMap<Restaurant> restaurantIdentityMap = new IdentityMap<>();
     private final AddressMapper addressMapper = new AddressMapper();
+    private final ProductMapper productMapper;
+
+    /**
+     * Passage de ProductMapper dans les paramètres du constructeur afin d'utiliser directement dans la méthode
+     * getProductsForRestaurant --> réduction des redondances et simplification de la gestion des dépendances.
+     * @param productMapper
+     */
+    public RestaurantMapper(ProductMapper productMapper) {
+        this.productMapper = productMapper;
+    }
 
     public void insert(Restaurant restaurant) throws SQLException {
         String sql = "INSERT INTO RESTAURANT (NOM, CODE_POSTAL, LOCALITE, RUE, NUM_RUE, PAYS) VALUES (?, ?, ?, ?, ?, ?)";
@@ -23,14 +33,9 @@ public class RestaurantMapper {
             addressMapper.prepareStatementForAddress(ps, restaurant.getAddress(), 2);
             ps.executeUpdate();
 
-            try (Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT SEQ_RESTAURANT.CURRVAL FROM DUAL")) {
-
-                long generatedId = DataBaseUtils.getGeneratedKey(rs);
-                restaurant.setId(generatedId);
-                restaurantIdentityMap.put(generatedId, restaurant); // Màj. de l'identity Map
-
-            }
+            long generatedId = DataBaseUtils.getGeneratedKey(conn, "SEQ_RESTAURANT");
+            restaurant.setId(generatedId);
+            restaurantIdentityMap.put(generatedId, restaurant); // Màj. de l'identity Map
         }
     }
 
@@ -111,7 +116,6 @@ public class RestaurantMapper {
      * @throws SQLException
      */
     public List<Product> getProductsForRestaurant(long restaurantId) throws SQLException {
-        ProductMapper productMapper = new ProductMapper();
         return productMapper.findProductsByRestaurantId(restaurantId);
     }
 
