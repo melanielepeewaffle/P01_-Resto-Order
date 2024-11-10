@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class CustomerCLI extends AbstractCLI {
-
     private final CustomerService customerService;
 
     public CustomerCLI(CustomerService customerService) {
@@ -18,7 +17,7 @@ public class CustomerCLI extends AbstractCLI {
     }
 
     public Customer getExistingCustomer(Connection conn) {
-        this.ln("Quelle est votre addresse email?");
+        this.ln("Quelle est votre adresse email?");
         String email = this.readEmailFromUser();
 
         try {
@@ -28,8 +27,7 @@ public class CustomerCLI extends AbstractCLI {
             }
             return customer;
         } catch (SQLException e) {
-            this.ln("Erreur lors de la récupération du client.");
-            e.printStackTrace();
+            handleSQLException(e, "Erreur lors de la récupération du client.");
             return null;
         }
     }
@@ -73,9 +71,9 @@ public class CustomerCLI extends AbstractCLI {
                 return organizationCustomer;
             }
         } catch (SQLException e) {
-            this.ln("Erreur lors de la création du client.");
-            e.printStackTrace();
+            handleSQLException(e, "Erreur lors de la création du client.");
         }
+
         return null;
     }
 }

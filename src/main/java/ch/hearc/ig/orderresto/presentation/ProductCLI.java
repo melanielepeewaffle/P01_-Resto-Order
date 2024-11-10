@@ -25,11 +25,11 @@ public class ProductCLI extends AbstractCLI {
                 Product product = products.get(i);
                 this.ln(String.format("%d. %s", i, product.getName()));
             }
+
             int index = this.readIntFromUser(products.size() - 1);
             return products.get(index);
         } catch (SQLException e) {
-            this.ln("Erreur lors de la récupération des produits.");
-            e.printStackTrace();
+            handleSQLException(e, "Erreur lors de la récupération des produits.");
             return null;
         }
     }

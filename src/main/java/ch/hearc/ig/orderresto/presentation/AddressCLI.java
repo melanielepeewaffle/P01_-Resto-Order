@@ -3,7 +3,6 @@ package ch.hearc.ig.orderresto.presentation;
 import ch.hearc.ig.orderresto.business.Address;
 
 public class AddressCLI extends AbstractCLI {
-
     public Address getNewAddress() {
         this.ln("Quel est le code de votre pays? [CH]");
         String countryCode = this.readStringFromUser(2, 2, "CH");

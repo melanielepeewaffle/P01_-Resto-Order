@@ -82,8 +82,7 @@ public class OrderCLI extends AbstractCLI {
             orderService.createOrder(conn, order);
             this.ln("Merci pour votre commande !");
         } catch (SQLException e) {
-            this.ln("Erreur lors de la création de la commande.");
-            e.printStackTrace();
+            handleSQLException(e, "Erreur lors de la création de la commande.");
         }
 
         return order;
@@ -100,8 +99,7 @@ public class OrderCLI extends AbstractCLI {
         try {
             orders = orderService.getOrdersByCustomerId(conn, customer.getId());
         } catch (SQLException e) {
-            this.ln("Erreur lors de la récupération des commandes");
-            e.printStackTrace();
+            handleSQLException(e, "Erreur lors de la récupération des commandes");
             return null;
         }
 

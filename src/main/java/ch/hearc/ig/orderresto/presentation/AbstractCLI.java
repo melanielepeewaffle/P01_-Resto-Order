@@ -1,6 +1,7 @@
 package ch.hearc.ig.orderresto.presentation;
 
 import java.io.PrintStream;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -88,5 +89,10 @@ public abstract class AbstractCLI {
             }
         }
         return input;
+    }
+
+    protected void handleSQLException(SQLException e, String message) {
+        this.ln(message);
+        e.printStackTrace();
     }
 }

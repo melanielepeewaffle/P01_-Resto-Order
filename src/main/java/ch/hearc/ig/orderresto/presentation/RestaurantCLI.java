@@ -23,11 +23,11 @@ public class RestaurantCLI extends AbstractCLI {
                 Restaurant restaurant = restaurants.get(i);
                 this.ln(String.format("%d. %s.", i, restaurant.getName()));
             }
+
             int index = this.readIntFromUser(restaurants.size() - 1);
             return restaurants.get(index);
         } catch (SQLException e) {
-            this.ln("Erreur lors de la récupération des restaurants.");
-            e.printStackTrace();
+            handleSQLException(e, "Erreur lors de la récupération des restaurants.");
             return null;
         }
     }
