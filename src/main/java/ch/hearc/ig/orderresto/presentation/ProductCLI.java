@@ -9,14 +9,15 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class ProductCLI extends AbstractCLI {
-
+    private final Connection conn;
     private final ProductService productService;
 
-    public ProductCLI(ProductService productService) {
+    public ProductCLI(Connection conn, ProductService productService) {
+        this.conn = conn;
         this.productService = productService;
     }
 
-    public Product getRestaurantProduct(Connection conn, Restaurant restaurant) {
+    public Product getRestaurantProduct(Restaurant restaurant) {
         try {
             List<Product> products = productService.findProductsByRestaurantId(conn, restaurant.getId());
 

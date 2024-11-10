@@ -16,29 +16,29 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class OrderCLI extends AbstractCLI {
-
+    private final Connection conn;
     private final OrderService orderService;
     private final CustomerService customerService;
     private final RestaurantService restaurantService;
     private final ProductService productService;
 
-    public OrderCLI(OrderService orderService, CustomerService customerService, RestaurantService restaurantService, ProductService productService) {
+    public OrderCLI(Connection conn, OrderService orderService, CustomerService customerService, RestaurantService restaurantService, ProductService productService) {
+        this.conn = conn;
         this.orderService = orderService;
         this.customerService = customerService;
         this.restaurantService = restaurantService;
         this.productService = productService;
     }
 
-    public Order createNewOrder(Connection conn) {
-
+    public Order createNewOrder() {
         this.ln("======================================================");
-        Restaurant restaurant = (new RestaurantCLI(restaurantService)).getExistingRestaurant(conn);
+        Restaurant restaurant = (new RestaurantCLI(conn, restaurantService)).getExistingRestaurant();
         if (restaurant == null) {
             this.ln("Aucun restaurant sélectionné. Annulation de la commande.");
             return null;
         }
 
-        Product product = (new ProductCLI(productService)).getRestaurantProduct(conn, restaurant);
+        Product product = (new ProductCLI(conn, productService)).getRestaurantProduct(restaurant);
         if (product == null) {
             this.ln("Aucun produit sélectionné. Annulation de la commande.");
             return null;
@@ -54,17 +54,17 @@ public class OrderCLI extends AbstractCLI {
             return null;
         }
 
-        CustomerCLI customerCLI = new CustomerCLI(customerService);
+        CustomerCLI customerCLI = new CustomerCLI(conn, customerService);
         Customer customer = null;
 
         if (userChoice == 1) {
-            customer = customerCLI.getExistingCustomer(conn);
+            customer = customerCLI.getExistingCustomer();
             if (customer == null) {
                 this.ln("Client non trouvé. Annulation de la commande.");
                 return null;
             }
         } else if (userChoice == 2) {
-            customer = customerCLI.createNewCustomer(conn);
+            customer = customerCLI.createNewCustomer();
             if (customer == null) {
                 this.ln("Erreur lors de la création du client. Annulation de la commande.");
                 return null;
@@ -88,8 +88,8 @@ public class OrderCLI extends AbstractCLI {
         return order;
     }
 
-    public Order selectOrder(Connection conn) {
-        Customer customer = (new CustomerCLI(customerService)).getExistingCustomer(conn);
+    public Order selectOrder() {
+        Customer customer = (new CustomerCLI(conn, customerService)).getExistingCustomer();
         if (customer == null) {
             this.ln("Désolé, nous ne connaissons pas cette personne.");
             return null;

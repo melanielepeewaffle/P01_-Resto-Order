@@ -26,7 +26,7 @@ public class Main {
       OrderService orderService = new OrderService(orderMapper);
 
       // Lancement de l'application via MainCLI
-      (new MainCLI(orderService, customerService, restaurantService, productService)).run(conn);
+      (new MainCLI(conn, orderService, customerService, restaurantService, productService)).run();
     } catch (SQLException e) {
       System.err.println("Erreur lors de la connexion à la base de données.");
      e.printStackTrace();

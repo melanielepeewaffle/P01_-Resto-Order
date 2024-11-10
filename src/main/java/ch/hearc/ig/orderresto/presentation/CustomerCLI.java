@@ -10,13 +10,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class CustomerCLI extends AbstractCLI {
+    private final Connection conn;
     private final CustomerService customerService;
 
-    public CustomerCLI(CustomerService customerService) {
+    public CustomerCLI(Connection conn, CustomerService customerService) {
+        this.conn = conn;
         this.customerService = customerService;
     }
 
-    public Customer getExistingCustomer(Connection conn) {
+    public Customer getExistingCustomer() {
         this.ln("Quelle est votre adresse email?");
         String email = this.readEmailFromUser();
 
@@ -32,7 +34,7 @@ public class CustomerCLI extends AbstractCLI {
         }
     }
 
-    public Customer createNewCustomer(Connection conn) {
+    public Customer createNewCustomer() {
         this.ln("Êtes-vous un client privé ou une organisation?");
         this.ln("0. Annuler");
         this.ln("1. Un client privé");

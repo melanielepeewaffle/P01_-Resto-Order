@@ -8,14 +8,15 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class RestaurantCLI extends AbstractCLI {
-
+    private final Connection conn;
     private final RestaurantService restaurantService;
 
-    public RestaurantCLI(RestaurantService restaurantService) {
+    public RestaurantCLI(Connection conn, RestaurantService restaurantService) {
+        this.conn = conn;
         this.restaurantService = restaurantService;
     }
 
-    public Restaurant getExistingRestaurant(Connection conn) {
+    public Restaurant getExistingRestaurant() {
         try {
             List<Restaurant> restaurants = restaurantService.findAllRestaurants(conn);
             this.ln("Choisissez un restaurant:");
