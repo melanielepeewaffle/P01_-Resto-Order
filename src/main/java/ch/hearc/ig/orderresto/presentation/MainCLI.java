@@ -6,6 +6,8 @@ import ch.hearc.ig.orderresto.service.CustomerService;
 import ch.hearc.ig.orderresto.service.RestaurantService;
 import ch.hearc.ig.orderresto.service.ProductService;
 
+import java.sql.Connection;
+
 public class MainCLI extends AbstractCLI {
 
     private final OrderService orderService;
@@ -20,7 +22,7 @@ public class MainCLI extends AbstractCLI {
         this.productService = productService;
     }
 
-    public void run() {
+    public void run(Connection conn) {
         this.ln("======================================================");
         this.ln("Que voulez-vous faire ?");
         this.ln("0. Quitter l'application");
@@ -28,10 +30,10 @@ public class MainCLI extends AbstractCLI {
         this.ln("2. Consulter une commande");
 
         int userChoice = this.readIntFromUser(2);
-        this.handleUserChoice(userChoice);
+        this.handleUserChoice(conn, userChoice);
     }
 
-    private void handleUserChoice(int userChoice) {
+    private void handleUserChoice(Connection conn, int userChoice) {
         if (userChoice == 0) {
             this.ln("Good bye!");
             return;
@@ -39,14 +41,14 @@ public class MainCLI extends AbstractCLI {
 
         OrderCLI orderCLI = new OrderCLI(orderService, customerService, restaurantService, productService);
         if (userChoice == 1) {
-            orderCLI.createNewOrder();
+            orderCLI.createNewOrder(conn);
         } else if (userChoice == 2) {
-            Order existingOrder = orderCLI.selectOrder();
+            Order existingOrder = orderCLI.selectOrder(conn);
             if (existingOrder != null) {
                 orderCLI.displayOrder(existingOrder);
             }
         }
 
-        this.run();
+        this.run(conn);
     }
 }

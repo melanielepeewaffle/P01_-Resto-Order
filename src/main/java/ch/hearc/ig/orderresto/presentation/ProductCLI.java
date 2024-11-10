@@ -4,6 +4,7 @@ import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.service.ProductService;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -15,9 +16,9 @@ public class ProductCLI extends AbstractCLI {
         this.productService = productService;
     }
 
-    public Product getRestaurantProduct(Restaurant restaurant) {
+    public Product getRestaurantProduct(Connection conn, Restaurant restaurant) {
         try {
-            List<Product> products = productService.findProductsByRestaurantId(restaurant.getId());
+            List<Product> products = productService.findProductsByRestaurantId(conn, restaurant.getId());
 
             this.ln(String.format("Bienvenue chez %s. Choisissez un de nos produits:", restaurant.getName()));
             for (int i = 0; i < products.size(); i++) {

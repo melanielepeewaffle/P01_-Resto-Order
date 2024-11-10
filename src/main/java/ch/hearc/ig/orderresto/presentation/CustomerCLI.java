@@ -6,6 +6,7 @@ import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
 import ch.hearc.ig.orderresto.service.CustomerService;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class CustomerCLI extends AbstractCLI {
@@ -16,12 +17,12 @@ public class CustomerCLI extends AbstractCLI {
         this.customerService = customerService;
     }
 
-    public Customer getExistingCustomer() {
+    public Customer getExistingCustomer(Connection conn) {
         this.ln("Quelle est votre addresse email?");
         String email = this.readEmailFromUser();
 
         try {
-            Customer customer = customerService.findCustomerByEmail(email);
+            Customer customer = customerService.findCustomerByEmail(conn, email);
             if (customer == null) {
                 this.ln("Client non trouvé.");
             }
@@ -33,7 +34,7 @@ public class CustomerCLI extends AbstractCLI {
         }
     }
 
-    public Customer createNewCustomer() {
+    public Customer createNewCustomer(Connection conn) {
         this.ln("Êtes-vous un client privé ou une organisation?");
         this.ln("0. Annuler");
         this.ln("1. Un client privé");
@@ -59,7 +60,7 @@ public class CustomerCLI extends AbstractCLI {
                 this.ln("Quel est votre nom ?");
                 String lastName = this.readStringFromUser();
                 PrivateCustomer privateCustomer = new PrivateCustomer(null, phone, email, address, gender, firstName, lastName);
-                customerService.createCustomer(privateCustomer);
+                customerService.createCustomer(conn, privateCustomer);
                 return privateCustomer;
 
             } else if (customerTypeChoice == 2) {
@@ -68,7 +69,7 @@ public class CustomerCLI extends AbstractCLI {
                 this.ln(String.format("%s est une société anonyme (SA), une association (A) ou une fondation (F) ?", name));
                 String legalForm = this.readChoicesFromUser(new String[]{"SA", "A", "F"});
                 OrganizationCustomer organizationCustomer = new OrganizationCustomer(null, phone, email, address, name, legalForm);
-                customerService.createCustomer(organizationCustomer);
+                customerService.createCustomer(conn, organizationCustomer);
                 return organizationCustomer;
             }
         } catch (SQLException e) {

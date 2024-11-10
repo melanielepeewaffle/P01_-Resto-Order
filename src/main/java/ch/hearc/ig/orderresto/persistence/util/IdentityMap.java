@@ -18,6 +18,10 @@ public class IdentityMap<T> {
         return cache.containsKey(id);
     }
 
+    public void remove(Long id) {
+        cache.remove(id);
+    }
+
     public void clear() {
         cache.clear();
     }

@@ -33,34 +33,4 @@ public class DataBaseConnection {
         props.put("oracle.jdbc.ReadTimeout", "10000");   // Timeout pour les lectures
         return DriverManager.getConnection(URL, props);
     }
-
-    public static void beginTransaction() throws SQLException {
-        getConnection().setAutoCommit(false);
-    }
-
-    public static void commitTransaction() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            connection.commit();
-            connection.setAutoCommit(true); // Pour les prochaines opérations
-        }
-    }
-
-    public static void rollbackTransaction() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            connection.rollback();
-            connection.setAutoCommit(true); // Pour les prochaines opérations
-        }
-    }
-
-    /**
-     * Ferme explicitement la connexion et la réinitialise à null. Cela permet de garantir que toutes les ressources
-     * sont libérées lorsque la connexion n'est plus nécessaire.
-     * @throws SQLException
-     */
-    public static void closeConnection() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
-            connection = null;
-        }
-    }
 }

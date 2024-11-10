@@ -3,7 +3,6 @@ package ch.hearc.ig.orderresto.persistence.mapper;
 import ch.hearc.ig.orderresto.business.Address;
 import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.OrganizationCustomer;
-import ch.hearc.ig.orderresto.persistence.util.DataBaseConnection;
 import ch.hearc.ig.orderresto.persistence.util.DataBaseUtils;
 
 import java.sql.Connection;
@@ -14,16 +13,17 @@ import java.sql.SQLException;
 public class OrganizationCustomerMapper extends AbstractCustomerMapper {
 
     @Override
-    public void insert(Customer customer) throws SQLException {
+    public void insert(Connection conn, Customer customer) throws SQLException {
         OrganizationCustomer orgCustomer = (OrganizationCustomer) customer;
+
         String sql = "INSERT INTO CLIENT (EMAIL, TELEPHONE, PAYS, CODE_POSTAL, LOCALITE, RUE, NUM_RUE, TYPE, NOM, FORME_SOCIALE) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, 'O', ?, ?)";
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
 
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             prepareStatementForCommonFields(ps, orgCustomer, 1);
             ps.setString(8, orgCustomer.getName());
             ps.setString(9, orgCustomer.getLegalForm());
+
             ps.executeUpdate();
 
             long generatedId = DataBaseUtils.getGeneratedKey(conn, "SEQ_CLIENT");
@@ -33,13 +33,13 @@ public class OrganizationCustomerMapper extends AbstractCustomerMapper {
     }
 
     @Override
-    public void update(Customer customer) throws SQLException {
+    public void update(Connection conn, Customer customer) throws SQLException {
         OrganizationCustomer orgCustomer = (OrganizationCustomer) customer;
+
         String sql = "UPDATE CLIENT SET EMAIL = ?, TELEPHONE = ?, PAYS = ?, CODE_POSTAL = ?, LOCALITE = ?, RUE = ?, NUM_RUE = ?, NOM = ?, FORME_SOCIALE = ? " +
                 "WHERE NUMERO = ?";
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
 
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             prepareStatementForCommonFields(ps, orgCustomer, 1);
             ps.setString(8, orgCustomer.getName());
             ps.setString(9, orgCustomer.getLegalForm());
@@ -49,18 +49,19 @@ public class OrganizationCustomerMapper extends AbstractCustomerMapper {
         }
     }
 
-    public OrganizationCustomer findByEmail(String email) throws SQLException {
+    public OrganizationCustomer findByEmail(Connection conn, String email) throws SQLException {
         String sql = "SELECT * FROM CLIENT WHERE EMAIL = ? AND TYPE = 'O'";
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
 
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return (OrganizationCustomer) mapResultSetToCustomer(rs);
                 }
             }
         }
+
         return null;
     }
 

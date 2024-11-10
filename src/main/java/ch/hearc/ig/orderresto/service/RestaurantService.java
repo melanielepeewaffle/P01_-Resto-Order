@@ -2,6 +2,8 @@ package ch.hearc.ig.orderresto.service;
 
 import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.persistence.mapper.RestaurantMapper;
+
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -13,7 +15,7 @@ public class RestaurantService {
         this.restaurantMapper = restaurantMapper;
     }
 
-    public List<Restaurant> findAllRestaurants() throws SQLException {
-        return restaurantMapper.findAll();
+    public List<Restaurant> findAllRestaurants(Connection conn) throws SQLException {
+        return restaurantMapper.findAll(conn);
     }
 }

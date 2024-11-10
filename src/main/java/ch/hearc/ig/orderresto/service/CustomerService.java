@@ -5,7 +5,6 @@ import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
 import ch.hearc.ig.orderresto.persistence.mapper.OrganizationCustomerMapper;
 import ch.hearc.ig.orderresto.persistence.mapper.PrivateCustomerMapper;
-import ch.hearc.ig.orderresto.persistence.util.DataBaseConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -20,24 +19,29 @@ public class CustomerService {
         this.organizationCustomerMapper = organizationCustomerMapper;
     }
 
-    public void createCustomer(Customer customer) throws SQLException {
-        try (Connection connection = DataBaseConnection.getConnection()) {
-            connection.setAutoCommit(false);
+    public void createCustomer(Connection conn, Customer customer) throws SQLException {
+        try {
+            conn.setAutoCommit(false);
+
             if (customer instanceof PrivateCustomer) {
-                privateCustomerMapper.insert((PrivateCustomer) customer);
+                privateCustomerMapper.insert(conn, customer);
             } else if (customer instanceof OrganizationCustomer) {
-                organizationCustomerMapper.insert((OrganizationCustomer) customer);
+                organizationCustomerMapper.insert(conn, customer);
             }
-            connection.commit();
+
+            conn.commit();
         } catch (SQLException e) {
+            conn.rollback();
             throw new SQLException("Erreur lors de la création du client.", e);
+        } finally {
+            conn.setAutoCommit(true);
         }
     }
 
-    public Customer findCustomerByEmail(String email) throws SQLException {
-        Customer customer = privateCustomerMapper.findByEmail(email);
+    public Customer findCustomerByEmail(Connection conn, String email) throws SQLException {
+        Customer customer = privateCustomerMapper.findByEmail(conn, email);
         if (customer == null) {
-            customer = organizationCustomerMapper.findByEmail(email);
+            customer = organizationCustomerMapper.findByEmail(conn, email);
         }
         return customer;
     }

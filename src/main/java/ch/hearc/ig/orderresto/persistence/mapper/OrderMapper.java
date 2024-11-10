@@ -4,7 +4,6 @@ import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.business.Customer;
-import ch.hearc.ig.orderresto.persistence.util.DataBaseConnection;
 import ch.hearc.ig.orderresto.persistence.util.DataBaseUtils;
 import ch.hearc.ig.orderresto.persistence.util.IdentityMap;
 
@@ -25,24 +24,24 @@ public class OrderMapper {
         this.productMapper = productMapper;
     }
 
-    public void insert(Order order) throws SQLException {
+    public void insert(Connection conn, Order order) throws SQLException {
         String sql = "INSERT INTO COMMANDE (NUMERO, FK_CLIENT, FK_RESTO, A_EMPORTER, QUAND) VALUES (SEQ_COMMANDE.NEXTVAL, ?, ?, ?, ?)";
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
 
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             prepareStatementForOrder(ps, order, 1);
             ps.executeUpdate();
 
             long generatedId = DataBaseUtils.getGeneratedKey(conn, "SEQ_COMMANDE");
             order.setId(generatedId);
             orderIdentityMap.put(generatedId, order);
-
-            insertOrderProducts(order, conn);
         }
+
+        insertOrderProducts(conn, order);
     }
 
-    private void insertOrderProducts(Order order, Connection conn) throws SQLException {
+    private void insertOrderProducts(Connection conn, Order order) throws SQLException {
         String sql = "INSERT INTO PRODUIT_COMMANDE (FK_COMMANDE, FK_PRODUIT) VALUES (?, ?)";
+
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             for (Product product : order.getProducts()) {
                 ps.setLong(1, order.getId());
@@ -52,69 +51,50 @@ public class OrderMapper {
         }
     }
 
-    public void update(Order order) throws SQLException {
+    public void update(Connection conn, Order order) throws SQLException {
         String sql = "UPDATE COMMANDE SET FK_CLIENT = ?, FK_RESTO = ?, A_EMPORTER = ?, QUAND = ? WHERE NUMERO = ?";
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
 
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             int nextIndex = prepareStatementForOrder(ps, order, 1);
             ps.setLong(nextIndex, order.getId());
             ps.executeUpdate();
 
-            updateOrderProducts(order, conn);
             orderIdentityMap.put(order.getId(), order);
         }
+
+        updateOrderProducts(conn, order);
     }
 
-    private void updateOrderProducts(Order order, Connection conn) throws SQLException {
-        String deleteSql = "DELETE FROM PRODUIT_COMMANDE WHERE FK_COMMANDE = ?";
-        try (PreparedStatement ps = conn.prepareStatement(deleteSql)) {
+    private void updateOrderProducts(Connection conn, Order order) throws SQLException {
+        String sql = "DELETE FROM PRODUIT_COMMANDE WHERE FK_COMMANDE = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, order.getId());
             ps.executeUpdate();
         }
-        insertOrderProducts(order, conn);
+
+        insertOrderProducts(conn, order);
     }
 
-    public void delete(long id) throws SQLException {
+    public void delete(Connection conn, Long id) throws SQLException {
         String sql = "DELETE FROM COMMANDE WHERE NUMERO = ?";
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
 
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
             ps.executeUpdate();
-            orderIdentityMap.clear();
+
+            orderIdentityMap.remove(id);
         }
     }
 
-    public Order findById(long id) throws SQLException {
-        if (orderIdentityMap.contains(id)) {
-            return orderIdentityMap.get(id);
-        }
-
-        String sql = "SELECT * FROM COMMANDE WHERE NUMERO = ?";
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setLong(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Order order = mapResultSetToOrder(rs);
-                    orderIdentityMap.put(id, order);
-                    return order;
-                }
-            }
-        }
-        return null;
-    }
-
-    public List<Order> findOrdersByCustomerId(long customerId) throws SQLException {
+    public List<Order> findOrdersByCustomerId(Connection conn, long customerId) throws SQLException {
         List<Order> orders = new ArrayList<>();
+
         String sql = "SELECT * FROM COMMANDE WHERE FK_CLIENT = ?";
 
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, customerId);
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     long orderId = rs.getLong("NUMERO");
@@ -122,21 +102,23 @@ public class OrderMapper {
                     if (orderIdentityMap.contains(orderId)) {
                         orders.add(orderIdentityMap.get(orderId));
                     } else {
-                        Order order = mapResultSetToOrder(rs);
+                        Order order = mapResultSetToOrder(conn, rs);
                         orderIdentityMap.put(orderId, order);
                         orders.add(order);
                     }
                 }
             }
         }
+
         return orders;
     }
 
-    public List<Order> findAll() throws SQLException {
+    public List<Order> findAll(Connection conn) throws SQLException {
         List<Order> orders = new ArrayList<>();
+
         String sql = "SELECT * FROM COMMANDE";
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
+
+        try (PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
@@ -144,12 +126,13 @@ public class OrderMapper {
                 if (orderIdentityMap.contains(orderId)) {
                     orders.add(orderIdentityMap.get(orderId));
                 } else {
-                    Order order = mapResultSetToOrder(rs);
+                    Order order = mapResultSetToOrder(conn, rs);
                     orderIdentityMap.put(orderId, order);
                     orders.add(order);
                 }
             }
         }
+
         return orders;
     }
 
@@ -161,15 +144,15 @@ public class OrderMapper {
         return startIndex + 4;
     }
 
-    private Order mapResultSetToOrder(ResultSet rs) throws SQLException {
+    private Order mapResultSetToOrder(Connection conn, ResultSet rs) throws SQLException {
         long clientId = rs.getLong("FK_CLIENT");
-        String clientType = getClientType(clientId);
+        String clientType = privateCustomerMapper.getClientType(conn, clientId);
         Customer customer = "P".equals(clientType) ?
-                privateCustomerMapper.findById(clientId) :
-                organizationCustomerMapper.findById(clientId);
+                privateCustomerMapper.findById(conn, clientId) :
+                organizationCustomerMapper.findById(conn, clientId);
 
         long restaurantId = rs.getLong("FK_RESTO");
-        Restaurant restaurant = restaurantMapper.findById(restaurantId);
+        Restaurant restaurant = restaurantMapper.findById(conn, restaurantId);
 
         Order order = new Order(
                 rs.getLong("NUMERO"),
@@ -179,26 +162,11 @@ public class OrderMapper {
                 rs.getTimestamp("QUAND").toLocalDateTime()
         );
 
-        List<Product> products = productMapper.findProductByOrderId(rs.getLong("NUMERO"));
+        List<Product> products = productMapper.findProductByOrderId(conn, rs.getLong("NUMERO"));
         for (Product product : products) {
             order.addProduct(product);
         }
 
         return order;
-    }
-
-    private String getClientType(long clientId) throws SQLException {
-        String sql = "SELECT TYPE FROM CLIENT WHERE NUMERO = ?";
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setLong(1, clientId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("TYPE");
-                }
-            }
-        }
-        return null;
     }
 }

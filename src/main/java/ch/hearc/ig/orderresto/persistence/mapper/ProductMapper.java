@@ -2,7 +2,6 @@ package ch.hearc.ig.orderresto.persistence.mapper;
 
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.persistence.util.DataBaseConnection;
 import ch.hearc.ig.orderresto.persistence.util.DataBaseUtils;
 import ch.hearc.ig.orderresto.persistence.util.IdentityMap;
 
@@ -18,11 +17,10 @@ public class ProductMapper {
         this.restaurantMapper = restaurantMapper;
     }
 
-    public void insert(Product product) throws SQLException {
+    public void insert(Connection conn, Product product) throws SQLException {
         String sql = "INSERT INTO PRODUIT (NUMERO, FK_RESTO, PRIX_UNITAIRE, NOM, DESCRIPTION) VALUES (SEQ_PRODUIT.NEXTVAL, ?, ?, ?, ?)";
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
 
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             prepareStatementForProduct(ps, product);
             ps.executeUpdate();
 
@@ -32,19 +30,25 @@ public class ProductMapper {
         }
     }
 
+    private Product findProductById(Connection conn, long productId) throws SQLException {
+        if (productIdentityMap.contains(productId)) {
+            return productIdentityMap.get(productId);
+        }
 
-    private Product findProductById(long productId) throws SQLException {
         String sql = "SELECT * FROM PRODUIT WHERE NUMERO = ?";
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
 
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, productId);
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return mapResultSetToProductFromRestaurant(rs);
+                    Product product = mapResultSetToProductFromRestaurant(conn, rs);
+                    productIdentityMap.put(productId, product);
+                    return product;
                 }
             }
         }
+
         return null;
     }
 
@@ -54,13 +58,12 @@ public class ProductMapper {
      * @return
      * @throws SQLException
      */
-    public List<Product> findProductsByRestaurantId(long restaurantId) throws SQLException {
+    public List<Product> findProductsByRestaurantId(Connection conn, long restaurantId) throws SQLException {
         List<Product> products = new ArrayList<>();
+
         String sql = "SELECT * FROM PRODUIT WHERE FK_RESTO = ?";
 
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, restaurantId);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -71,24 +74,25 @@ public class ProductMapper {
                     if (productIdentityMap.contains(productId)) {
                         products.add(productIdentityMap.get(productId));
                     } else {
-                      Product product = mapResultSetToProductFromRestaurant(rs);
+                      Product product = mapResultSetToProductFromRestaurant(conn, rs);
                       productIdentityMap.put(productId, product);
                       products.add(product);
                     }
                 }
             }
         }
+
         return products;
     }
 
-    public List<Product> findProductByOrderId(Long orderId) throws SQLException {
+    public List<Product> findProductByOrderId(Connection conn, Long orderId) throws SQLException {
         List<Product> products = new ArrayList<>();
+
         String sql  = "SELECT FK_PRODUIT FROM PRODUIT_COMMANDE WHERE FK_COMMANDE = ?";
 
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, orderId);
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     long productId = rs.getLong("FK_PRODUIT");
@@ -96,13 +100,14 @@ public class ProductMapper {
                     if (productIdentityMap.contains(productId)) {
                         products.add(productIdentityMap.get(productId));
                     } else {
-                        Product product = findProductById(productId);
+                        Product product = findProductById(conn, productId);
                         productIdentityMap.put(productId, product);
                         products.add(product);
                     }
                 }
             }
         }
+
         return products;
     }
 
@@ -113,9 +118,9 @@ public class ProductMapper {
         ps.setString(4, product.getDescription());
     }
 
-    private Product mapResultSetToProductFromRestaurant(ResultSet rs) throws SQLException {
+    private Product mapResultSetToProductFromRestaurant(Connection conn, ResultSet rs) throws SQLException {
         long restaurantId = rs.getLong("FK_RESTO");
-        Restaurant restaurant = restaurantMapper.findById(restaurantId);
+        Restaurant restaurant = restaurantMapper.findById(conn, restaurantId);
 
         return new Product(
                 rs.getLong("NUMERO"),

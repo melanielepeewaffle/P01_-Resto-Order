@@ -3,6 +3,7 @@ package ch.hearc.ig.orderresto.presentation;
 import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.service.RestaurantService;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -14,9 +15,9 @@ public class RestaurantCLI extends AbstractCLI {
         this.restaurantService = restaurantService;
     }
 
-    public Restaurant getExistingRestaurant() {
+    public Restaurant getExistingRestaurant(Connection conn) {
         try {
-            List<Restaurant> restaurants = restaurantService.findAllRestaurants();
+            List<Restaurant> restaurants = restaurantService.findAllRestaurants(conn);
             this.ln("Choisissez un restaurant:");
             for (int i = 0; i < restaurants.size(); i++) {
                 Restaurant restaurant = restaurants.get(i);

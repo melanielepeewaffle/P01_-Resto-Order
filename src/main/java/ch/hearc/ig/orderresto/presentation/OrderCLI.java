@@ -9,6 +9,7 @@ import ch.hearc.ig.orderresto.service.OrderService;
 import ch.hearc.ig.orderresto.service.ProductService;
 import ch.hearc.ig.orderresto.service.RestaurantService;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,16 +29,16 @@ public class OrderCLI extends AbstractCLI {
         this.productService = productService;
     }
 
-    public Order createNewOrder() {
+    public Order createNewOrder(Connection conn) {
 
         this.ln("======================================================");
-        Restaurant restaurant = (new RestaurantCLI(restaurantService)).getExistingRestaurant();
+        Restaurant restaurant = (new RestaurantCLI(restaurantService)).getExistingRestaurant(conn);
         if (restaurant == null) {
             this.ln("Aucun restaurant sélectionné. Annulation de la commande.");
             return null;
         }
 
-        Product product = (new ProductCLI(productService)).getRestaurantProduct(restaurant);
+        Product product = (new ProductCLI(productService)).getRestaurantProduct(conn, restaurant);
         if (product == null) {
             this.ln("Aucun produit sélectionné. Annulation de la commande.");
             return null;
@@ -57,13 +58,13 @@ public class OrderCLI extends AbstractCLI {
         Customer customer = null;
 
         if (userChoice == 1) {
-            customer = customerCLI.getExistingCustomer();
+            customer = customerCLI.getExistingCustomer(conn);
             if (customer == null) {
                 this.ln("Client non trouvé. Annulation de la commande.");
                 return null;
             }
         } else if (userChoice == 2) {
-            customer = customerCLI.createNewCustomer();
+            customer = customerCLI.createNewCustomer(conn);
             if (customer == null) {
                 this.ln("Erreur lors de la création du client. Annulation de la commande.");
                 return null;
@@ -78,7 +79,7 @@ public class OrderCLI extends AbstractCLI {
 
         // Actually place the order (this could/should be in a different method?)
         try {
-            orderService.createOrder(order);
+            orderService.createOrder(conn, order);
             this.ln("Merci pour votre commande !");
         } catch (SQLException e) {
             this.ln("Erreur lors de la création de la commande.");
@@ -88,8 +89,8 @@ public class OrderCLI extends AbstractCLI {
         return order;
     }
 
-    public Order selectOrder() {
-        Customer customer = (new CustomerCLI(customerService)).getExistingCustomer();
+    public Order selectOrder(Connection conn) {
+        Customer customer = (new CustomerCLI(customerService)).getExistingCustomer(conn);
         if (customer == null) {
             this.ln("Désolé, nous ne connaissons pas cette personne.");
             return null;
@@ -97,7 +98,7 @@ public class OrderCLI extends AbstractCLI {
 
         List<Order> orders;
         try {
-            orders = orderService.getOrdersByCustomerId(customer.getId());
+            orders = orderService.getOrdersByCustomerId(conn, customer.getId());
         } catch (SQLException e) {
             this.ln("Erreur lors de la récupération des commandes");
             e.printStackTrace();
