@@ -45,6 +45,7 @@ public class OrganizationCustomerMapper extends AbstractCustomerMapper {
             ps.setString(9, orgCustomer.getLegalForm());
             ps.setLong(10, orgCustomer.getId());
             ps.executeUpdate();
+
             customerIdentityMap.put(orgCustomer.getId(), orgCustomer);
         }
     }

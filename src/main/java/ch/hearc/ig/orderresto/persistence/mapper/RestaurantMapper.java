@@ -49,7 +49,7 @@ public class RestaurantMapper {
             ps.setLong(1, id);
             ps.executeUpdate();
 
-            restaurantIdentityMap.clear(); // Supprime l'entrée de l'identity Map
+            restaurantIdentityMap.remove(id);
         }
     }
 

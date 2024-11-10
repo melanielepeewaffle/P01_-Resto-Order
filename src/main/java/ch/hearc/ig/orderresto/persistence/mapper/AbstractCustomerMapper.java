@@ -23,7 +23,8 @@ public abstract class AbstractCustomerMapper {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
             ps.executeUpdate();
-            customerIdentityMap.clear();
+
+            customerIdentityMap.remove(id);
         }
     }
 
