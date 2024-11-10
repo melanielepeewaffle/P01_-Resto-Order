@@ -107,6 +107,31 @@ public class OrderMapper {
         return null;
     }
 
+    public List<Order> findOrdersByCustomerId(long customerId) throws SQLException {
+        List<Order> orders = new ArrayList<>();
+        String sql = "SELECT * FROM COMMANDE WHERE FK_CLIENT = ?";
+
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, customerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    long orderId = rs.getLong("NUMERO");
+
+                    if (orderIdentityMap.contains(orderId)) {
+                        orders.add(orderIdentityMap.get(orderId));
+                    } else {
+                        Order order = mapResultSetToOrder(rs);
+                        orderIdentityMap.put(orderId, order);
+                        orders.add(order);
+                    }
+                }
+            }
+        }
+        return orders;
+    }
+
     public List<Order> findAll() throws SQLException {
         List<Order> orders = new ArrayList<>();
         String sql = "SELECT * FROM COMMANDE";

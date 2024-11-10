@@ -16,12 +16,13 @@ public class OrganizationCustomerMapper extends AbstractCustomerMapper {
     @Override
     public void insert(Customer customer) throws SQLException {
         OrganizationCustomer orgCustomer = (OrganizationCustomer) customer;
-        String sql = "INSERT INTO CLIENT (EMAIL, TELEPHONE, NOM, CODE_POSTAL, LOCALITE, RUE, NUM_RUE, PAYS, TYPE, FORME_SOCIALE) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'O', ?)";
+        String sql = "INSERT INTO CLIENT (EMAIL, TELEPHONE, PAYS, CODE_POSTAL, LOCALITE, RUE, NUM_RUE, TYPE, NOM, FORME_SOCIALE) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 'O', ?, ?)";
         try (Connection conn = DataBaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             prepareStatementForCommonFields(ps, orgCustomer, 1);
+            ps.setString(8, orgCustomer.getName());
             ps.setString(9, orgCustomer.getLegalForm());
             ps.executeUpdate();
 
@@ -34,17 +35,33 @@ public class OrganizationCustomerMapper extends AbstractCustomerMapper {
     @Override
     public void update(Customer customer) throws SQLException {
         OrganizationCustomer orgCustomer = (OrganizationCustomer) customer;
-        String sql = "UPDATE CLIENT SET EMAIL = ?, TELEPHONE = ?, NOM = ?, CODE_POSTAL = ?, LOCALITE = ?, RUE = ?, NUM_RUE = ?, PAYS = ?, FORME_SOCIALE = ? " +
+        String sql = "UPDATE CLIENT SET EMAIL = ?, TELEPHONE = ?, PAYS = ?, CODE_POSTAL = ?, LOCALITE = ?, RUE = ?, NUM_RUE = ?, NOM = ?, FORME_SOCIALE = ? " +
                 "WHERE NUMERO = ?";
         try (Connection conn = DataBaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             prepareStatementForCommonFields(ps, orgCustomer, 1);
+            ps.setString(8, orgCustomer.getName());
             ps.setString(9, orgCustomer.getLegalForm());
             ps.setLong(10, orgCustomer.getId());
             ps.executeUpdate();
             customerIdentityMap.put(orgCustomer.getId(), orgCustomer);
         }
+    }
+
+    public OrganizationCustomer findByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM CLIENT WHERE EMAIL = ? AND TYPE = 'O'";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return (OrganizationCustomer) mapResultSetToCustomer(rs);
+                }
+            }
+        }
+        return null;
     }
 
     @Override

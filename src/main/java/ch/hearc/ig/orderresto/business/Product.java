@@ -19,8 +19,7 @@ public class Product {
         this.unitPrice = unitPrice;
         this.description = description;
         this.orders = new HashSet<>();
-        this.restaurant = restaurant;
-        restaurant.registerProduct(this);
+        setRestaurant(restaurant);
     }
 
     public Long getId() {
@@ -47,8 +46,20 @@ public class Product {
         return orders;
     }
 
+    public void addOrder(Order order) {
+        this.orders.add(order);
+    }
+
     public Restaurant getRestaurant() {
         return restaurant;
+    }
+
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
+
+        if (restaurant != null) {
+            restaurant.registerProduct(this);
+        }
     }
 
     @Override
@@ -60,9 +71,5 @@ public class Product {
                 this.getRestaurant().getName(),
                 this.getDescription()
         );
-    }
-
-    public void addOrder(Order order) {
-        this.orders.add(order);
     }
 }

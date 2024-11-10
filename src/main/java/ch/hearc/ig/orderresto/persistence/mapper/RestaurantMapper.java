@@ -1,7 +1,6 @@
 package ch.hearc.ig.orderresto.persistence.mapper;
 
 import ch.hearc.ig.orderresto.business.Address;
-import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.persistence.util.DataBaseConnection;
 import ch.hearc.ig.orderresto.persistence.util.DataBaseUtils;
@@ -15,16 +14,6 @@ public class RestaurantMapper {
 
     private final IdentityMap<Restaurant> restaurantIdentityMap = new IdentityMap<>();
     private final AddressMapper addressMapper = new AddressMapper();
-    private final ProductMapper productMapper;
-
-    /**
-     * Passage de ProductMapper dans les paramètres du constructeur afin d'utiliser directement dans la méthode
-     * getProductsForRestaurant --> réduction des redondances et simplification de la gestion des dépendances.
-     * @param productMapper
-     */
-    public RestaurantMapper(ProductMapper productMapper) {
-        this.productMapper = productMapper;
-    }
 
     public void insert(Restaurant restaurant) throws SQLException {
         String sql = "INSERT INTO RESTAURANT (NOM, CODE_POSTAL, LOCALITE, RUE, NUM_RUE, PAYS) VALUES (?, ?, ?, ?, ?, ?)";
@@ -109,17 +98,6 @@ public class RestaurantMapper {
             }
         }
         return restaurants;
-    }
-
-    /**
-     * Mapper interactif : facilitation de l'obtention d'un produit associés à un restaurant depuis RestaurantMapper
-     * en déléguant le chargement à ProductMapper.
-     * @param restaurantId
-     * @return
-     * @throws SQLException
-     */
-    public List<Product> getProductsForRestaurant(long restaurantId) throws SQLException {
-        return productMapper.findProductsByRestaurantId(restaurantId);
     }
 
     /**

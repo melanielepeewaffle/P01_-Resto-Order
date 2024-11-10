@@ -11,14 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductMapper {
-
     private final IdentityMap<Product> productIdentityMap = new IdentityMap<>();
     private final RestaurantMapper restaurantMapper;
 
-    /**
-     * Reçoit une instance de RestaurantMapper pour éviter la création répétée d'instances dans chaque méthode.
-     * @param restaurantMapper
-     */
     public ProductMapper(RestaurantMapper restaurantMapper) {
         this.restaurantMapper = restaurantMapper;
     }
@@ -35,6 +30,22 @@ public class ProductMapper {
             product.setId(generatedId);
             productIdentityMap.put(generatedId, product); // Màj. de l'identity Map
         }
+    }
+
+
+    private Product findProductById(long productId) throws SQLException {
+        String sql = "SELECT * FROM PRODUIT WHERE NUMERO = ?";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToProductFromRestaurant(rs);
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -72,7 +83,7 @@ public class ProductMapper {
 
     public List<Product> findProductByOrderId(Long orderId) throws SQLException {
         List<Product> products = new ArrayList<>();
-        String sql  = "SELECT * FROM PRODUIT_COMMANDE WHERE FK_COMMANDE = ?";
+        String sql  = "SELECT FK_PRODUIT FROM PRODUIT_COMMANDE WHERE FK_COMMANDE = ?";
 
         try (Connection conn = DataBaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -85,7 +96,7 @@ public class ProductMapper {
                     if (productIdentityMap.contains(productId)) {
                         products.add(productIdentityMap.get(productId));
                     } else {
-                        Product product = mapResultSetToProductFromRestaurant(rs);
+                        Product product = findProductById(productId);
                         productIdentityMap.put(productId, product);
                         products.add(product);
                     }
@@ -103,9 +114,8 @@ public class ProductMapper {
     }
 
     private Product mapResultSetToProductFromRestaurant(ResultSet rs) throws SQLException {
-        // Utilisation de RestaurantMapper pour charger le restaurant associé via sa PK pour la relation entre
-        // Product et Restaurant.
-        Restaurant restaurant = restaurantMapper.findById(rs.getLong("FK_RESTO"));
+        long restaurantId = rs.getLong("FK_RESTO");
+        Restaurant restaurant = restaurantMapper.findById(restaurantId);
 
         return new Product(
                 rs.getLong("NUMERO"),

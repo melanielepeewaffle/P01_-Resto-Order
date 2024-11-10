@@ -5,9 +5,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-// EX1 : Comment gérer les connexions JDBC ?
-// --> Gestions des connexions avec les méthodes pour commencer, terminer les transactions ainsi que fermer les
-//     connexions.
 public class DataBaseConnection {
     // Dans le cadre d'un projet collaboratif, les variables d'environnement paraissent plus appropriés.
     private static final String URL = System.getenv("DB_URL");

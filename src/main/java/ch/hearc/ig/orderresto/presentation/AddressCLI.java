@@ -1,8 +1,6 @@
 package ch.hearc.ig.orderresto.presentation;
 
 import ch.hearc.ig.orderresto.business.Address;
-import ch.hearc.ig.orderresto.business.Customer;
-import ch.hearc.ig.orderresto.persistence.FakeDb;
 
 public class AddressCLI extends AbstractCLI {
 

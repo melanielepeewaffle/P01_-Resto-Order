@@ -22,6 +22,7 @@ public class Restaurant {
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -29,12 +30,13 @@ public class Restaurant {
     public String getName() {
         return name;
     }
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public Set<Order> getOrders() {
         return orders;
+    }
+
+    public void addOrder(Order order) {
+        this.orders.add(order);
     }
 
     public Address getAddress() {
@@ -50,9 +52,5 @@ public class Restaurant {
             throw new RuntimeException("Restaurant mismatch!");
         }
         this.productsCatalog.add(p);
-    }
-
-    public void addOrder(Order order) {
-        this.orders.add(order);
     }
 }
