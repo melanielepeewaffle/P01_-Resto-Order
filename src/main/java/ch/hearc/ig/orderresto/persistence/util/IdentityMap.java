@@ -21,8 +21,4 @@ public class IdentityMap<T> {
     public void remove(Long id) {
         cache.remove(id);
     }
-
-    public void clear() {
-        cache.clear();
-    }
 }
