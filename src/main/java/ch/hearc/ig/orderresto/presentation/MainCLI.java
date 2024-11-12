@@ -1,5 +1,6 @@
 package ch.hearc.ig.orderresto.presentation;
 
+import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.service.OrderService;
 import ch.hearc.ig.orderresto.service.CustomerService;
 import ch.hearc.ig.orderresto.service.RestaurantService;
