@@ -6,15 +6,12 @@ import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
 import ch.hearc.ig.orderresto.service.CustomerService;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 public class CustomerCLI extends AbstractCLI {
-    private final Connection conn;
     private final CustomerService customerService;
 
-    public CustomerCLI(Connection conn, CustomerService customerService) {
-        this.conn = conn;
+    public CustomerCLI(CustomerService customerService) {
         this.customerService = customerService;
     }
 
@@ -23,7 +20,7 @@ public class CustomerCLI extends AbstractCLI {
         String email = this.readEmailFromUser();
 
         try {
-            Customer customer = customerService.findCustomerByEmail(conn, email);
+            Customer customer = customerService.findCustomerByEmail(email);
             if (customer == null) {
                 this.ln("Client non trouvé.");
             }
@@ -60,7 +57,7 @@ public class CustomerCLI extends AbstractCLI {
                 this.ln("Quel est votre nom ?");
                 String lastName = this.readStringFromUser();
                 PrivateCustomer privateCustomer = new PrivateCustomer(null, phone, email, address, gender, firstName, lastName);
-                customerService.createCustomer(conn, privateCustomer);
+                customerService.createCustomer(privateCustomer);
                 return privateCustomer;
 
             } else if (customerTypeChoice == 2) {
@@ -69,7 +66,7 @@ public class CustomerCLI extends AbstractCLI {
                 this.ln(String.format("%s est une société anonyme (SA), une association (A) ou une fondation (F) ?", name));
                 String legalForm = this.readChoicesFromUser(new String[]{"SA", "A", "F"});
                 OrganizationCustomer organizationCustomer = new OrganizationCustomer(null, phone, email, address, name, legalForm);
-                customerService.createCustomer(conn, organizationCustomer);
+                customerService.createCustomer(organizationCustomer);
                 return organizationCustomer;
             }
         } catch (SQLException e) {

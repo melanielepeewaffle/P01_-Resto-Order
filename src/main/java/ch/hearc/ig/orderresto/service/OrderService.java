@@ -2,6 +2,7 @@ package ch.hearc.ig.orderresto.service;
 
 import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.persistence.mapper.OrderMapper;
+import ch.hearc.ig.orderresto.persistence.util.DataBaseConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,20 +15,19 @@ public class OrderService {
         this.orderMapper = orderMapper;
     }
 
-    public void createOrder(Connection conn, Order order) throws SQLException {
-        try {
+    public void createOrder(Order order) throws SQLException {
+        try (Connection conn = DataBaseConnection.getConnection()) {
             conn.setAutoCommit(false);
             orderMapper.insert(conn, order);
             conn.commit();
         } catch (SQLException e) {
-            conn.rollback();
             throw new SQLException("Erreur lors de la création de la commande.", e);
-        } finally {
-            conn.setAutoCommit(true);
         }
     }
 
-    public List<Order> getOrdersByCustomerId(Connection conn, Long customerId) throws SQLException {
-        return orderMapper.findOrdersByCustomerId(conn, customerId);
+    public List<Order> getOrdersByCustomerId(Long customerId) throws SQLException {
+        try (Connection conn = DataBaseConnection.getConnection()) {
+            return orderMapper.findOrdersByCustomerId(conn, customerId);
+        }
     }
 }

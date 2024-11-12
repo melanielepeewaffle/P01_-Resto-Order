@@ -4,6 +4,7 @@ import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.persistence.mapper.ProductMapper;
 import ch.hearc.ig.orderresto.persistence.mapper.RestaurantMapper;
+import ch.hearc.ig.orderresto.persistence.util.DataBaseConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -19,13 +20,15 @@ public class ProductService {
         this.restaurantMapper = restaurantMapper;
     }
 
-    public List<Product> findProductsByRestaurantId(Connection conn, long restaurantId) throws SQLException {
-        Restaurant restaurant = restaurantMapper.findById(conn, restaurantId);
-        List<Product> products = productMapper.findProductsByRestaurantId(conn, restaurantId);
+    public List<Product> findProductsByRestaurantId(long restaurantId) throws SQLException {
+        try (Connection conn = DataBaseConnection.getConnection()) {
+            Restaurant restaurant = restaurantMapper.findById(conn, restaurantId);
+            List<Product> products = productMapper.findProductsByRestaurantId(conn, restaurantId);
 
-        for (Product product : products) {
-            product.setRestaurant(restaurant);
+            for (Product product : products) {
+                product.setRestaurant(restaurant);
+            }
+            return products;
         }
-        return products;
     }
 }

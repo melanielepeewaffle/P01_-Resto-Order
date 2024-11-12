@@ -14,9 +14,6 @@ public class DataBaseConnection {
     // Instance de connexion unique - Singleton
     private static Connection connection;
 
-    // Constructeur privé pour empêcher l'instanciation de cette classe
-    private DataBaseConnection() {}
-
     /**
      * Obtention de la connexion, avec la gestion d'une seule instance.
      * Si la connexion est null ou close, elle en crée une nouvelle. Sinon elle réutilise la connexion existante.
@@ -24,13 +21,17 @@ public class DataBaseConnection {
      * @throws SQLException
      */
     public static Connection getConnection() throws SQLException {
-        Properties props = new Properties();
-        props.put("user", USER);
-        props.put("password", PASSWORD);
+        if (connection == null || connection.isClosed()) {
+            Properties props = new Properties();
+            props.put("user", USER);
+            props.put("password", PASSWORD);
 
-        // Permet la résolution des interruptions automatiques.
-        props.put("oracle.net.CONNECT_TIMEOUT", "5000"); // Timeout pour connexion initiale
-        props.put("oracle.jdbc.ReadTimeout", "10000");   // Timeout pour les lectures
-        return DriverManager.getConnection(URL, props);
+            // Permet la résolution des interruptions automatiques.
+            props.put("oracle.net.CONNECT_TIMEOUT", "5000"); // Timeout pour connexion initiale
+            props.put("oracle.jdbc.ReadTimeout", "10000");   // Timeout pour les lectures
+
+            connection = DriverManager.getConnection(URL, props);
+        }
+        return connection;
     }
 }

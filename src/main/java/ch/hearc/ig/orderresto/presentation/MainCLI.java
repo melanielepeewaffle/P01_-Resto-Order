@@ -1,22 +1,17 @@
 package ch.hearc.ig.orderresto.presentation;
 
-import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.service.OrderService;
 import ch.hearc.ig.orderresto.service.CustomerService;
 import ch.hearc.ig.orderresto.service.RestaurantService;
 import ch.hearc.ig.orderresto.service.ProductService;
 
-import java.sql.Connection;
-
 public class MainCLI extends AbstractCLI {
-    private final Connection conn;
     private final OrderService orderService;
     private final CustomerService customerService;
     private final RestaurantService restaurantService;
     private final ProductService productService;
 
-    public MainCLI(Connection conn, OrderService orderService, CustomerService customerService, RestaurantService restaurantService, ProductService productService) {
-        this.conn = conn;
+    public MainCLI(OrderService orderService, CustomerService customerService, RestaurantService restaurantService, ProductService productService) {
         this.orderService = orderService;
         this.customerService = customerService;
         this.restaurantService = restaurantService;
@@ -40,7 +35,7 @@ public class MainCLI extends AbstractCLI {
             return;
         }
 
-        OrderCLI orderCLI = new OrderCLI(conn, orderService, customerService, restaurantService, productService);
+        OrderCLI orderCLI = new OrderCLI(orderService, customerService, restaurantService, productService);
         if (userChoice == 1) {
             orderCLI.createNewOrder();
         } else if (userChoice == 2) {
