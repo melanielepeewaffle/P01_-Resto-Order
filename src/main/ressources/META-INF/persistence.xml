@@ -7,6 +7,7 @@
         <class>ch.hearc.ig.orderresto.business.PrivateCustomer</class>
         <class>ch.hearc.ig.orderresto.business.OrganizationCustomer</class>
         <class>ch.hearc.ig.orderresto.business.Order</class>
+        <class>ch.hearc.ig.orderresto.business.Product</class>
         <class>ch.hearc.ig.orderresto.business.Address</class>
 
         <properties>

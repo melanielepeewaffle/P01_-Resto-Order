@@ -25,8 +25,13 @@ public class Order {
     @JoinColumn(name = "FK_RESTO", nullable = false)
     private Restaurant restaurant;
 
-    @Transient
-    private Set<Product> products;
+    @ManyToMany
+    @JoinTable(
+            name = "PRODUIT_COMMANDE",
+            joinColumns = @JoinColumn(name = "FK_COMMANDE"),
+            inverseJoinColumns = @JoinColumn(name = "FK_PRODUIT")
+    )
+    private Set<Product> products = new HashSet<>();
 
     @Column(name = "A_EMPORTER", nullable = false, columnDefinition = "CHAR(1)")
     private String takeAway;

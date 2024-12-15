@@ -5,6 +5,7 @@ import ch.hearc.ig.orderresto.persistence.util.HibernateUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class TestApplication {
@@ -12,8 +13,47 @@ public class TestApplication {
         System.out.println("Début des tests Hibernate...");
         //TestRestaurant();
         //TestCustomer();
-        TestCustomerOrders();
+        //TestCustomerOrders();
+        TestRestaurantProducts();
         System.out.println("Fin des tests Hibernate...");
+    }
+
+    public static void TestRestaurantProducts() {
+        EntityManager em = HibernateUtil.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            transaction.begin();
+
+            // Créer un restaurant
+            Restaurant restaurant = new Restaurant("Test Resto", new Address("CH", "2000", "Neuchâtel", "Rue du Resto", "10"));
+            em.persist(restaurant);
+
+            // Ajouter des produits
+            Product product1 = new Product(null, "Product 1", new BigDecimal("10.00"), "Description 1", restaurant);
+            Product product2 = new Product(null, "Product 2", new BigDecimal("15.00"), "Description 2", restaurant);
+
+            em.persist(product1);
+            em.persist(product2);
+
+            transaction.commit();
+
+            // Vérifier les produits associés au restaurant
+            Restaurant loadedRestaurant = em.find(Restaurant.class, restaurant.getId());
+            System.out.println("Restaurant has " + loadedRestaurant.getProductsCatalog().size() + " products.");
+            loadedRestaurant.getProductsCatalog().forEach(product ->
+                    System.out.println("Product: " + product.getName() + ", Price: " + product.getUnitPrice())
+            );
+
+        } catch (Exception e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            em.close();
+            HibernateUtil.shutdown();
+        }
     }
 
     public static void TestCustomerOrders() {

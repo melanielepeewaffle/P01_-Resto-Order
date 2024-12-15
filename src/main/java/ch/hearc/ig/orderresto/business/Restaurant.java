@@ -24,8 +24,8 @@ public class Restaurant {
     @Embedded
     private Address address;
 
-    @Transient
-    private Set<Product> productsCatalog;
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Product> productsCatalog = new HashSet<>();
 
     public Restaurant() {}
 
