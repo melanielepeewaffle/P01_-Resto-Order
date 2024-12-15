@@ -17,16 +17,14 @@ public abstract class Customer {
     @Column(name = "NUMERO")
     private Long id;
 
-
     @Column(name = "TELEPHONE", nullable = false)
     private String phone;
-
 
     @Column(name = "EMAIL", nullable = false)
     private String email;
 
-    @Transient
-    private Set<Order> orders;
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Order> orders = new HashSet<>();
 
     @Embedded
     private Address address;

@@ -18,8 +18,8 @@ public class Restaurant {
     @Column(name = "NOM", nullable = false)
     private String name;
 
-    @Transient
-    private Set<Order> orders;
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Order> orders = new HashSet<>();
 
     @Embedded
     private Address address;
