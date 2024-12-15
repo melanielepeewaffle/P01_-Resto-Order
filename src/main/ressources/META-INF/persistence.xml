@@ -4,6 +4,8 @@
              http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd" version="2.1">
     <persistence-unit name="myPersistenceUnit" transaction-type="RESOURCE_LOCAL">
         <class>ch.hearc.ig.orderresto.business.Restaurant</class>
+        <class>ch.hearc.ig.orderresto.business.PrivateCustomer</class>
+        <class>ch.hearc.ig.orderresto.business.OrganizationCustomer</class>
         <class>ch.hearc.ig.orderresto.business.Address</class>
 
         <properties>
