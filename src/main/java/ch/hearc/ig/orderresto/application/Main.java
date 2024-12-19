@@ -14,7 +14,7 @@ public class Main {
 
     // Initialisation des services
     CustomerService customerService = new CustomerService();
-    ProductService productService = new ProductService(productMapper, restaurantMapper);
+    ProductService productService = new ProductService();
     RestaurantService restaurantService = new RestaurantService();
     OrderService orderService = new OrderService(orderMapper);
 

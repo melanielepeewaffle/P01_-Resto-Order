@@ -2,33 +2,32 @@ package ch.hearc.ig.orderresto.service;
 
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.persistence.mapper.ProductMapper;
-import ch.hearc.ig.orderresto.persistence.mapper.RestaurantMapper;
-import ch.hearc.ig.orderresto.persistence.util.DataBaseConnection;
+import ch.hearc.ig.orderresto.persistence.util.HibernateUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 public class ProductService {
 
-    private final ProductMapper productMapper;
-    private final RestaurantMapper restaurantMapper;
+    public List<Product> findProductsByRestaurantId(long restaurantId) {
+        EntityManager em = HibernateUtil.getEntityManager();
 
-    public ProductService(ProductMapper productMapper, RestaurantMapper restaurantMapper) {
-        this.productMapper = productMapper;
-        this.restaurantMapper = restaurantMapper;
-    }
+        try {
+            Restaurant restaurant = em.find(Restaurant.class, restaurantId);
 
-    public List<Product> findProductsByRestaurantId(long restaurantId) throws SQLException {
-        try (Connection conn = DataBaseConnection.getConnection()) {
-            Restaurant restaurant = restaurantMapper.findById(conn, restaurantId);
-            List<Product> products = productMapper.findProductsByRestaurantId(conn, restaurantId);
-
-            for (Product product : products) {
-                product.setRestaurant(restaurant);
+            if (restaurant == null) {
+                throw new RuntimeException("restaurant not found");
             }
-            return products;
+
+            TypedQuery<Product> query = em.createQuery(
+                    "SELECT p FROM Product p WHERE p.restaurant.id = :restaurantId", Product.class
+            );
+            query.setParameter("restaurantId", restaurantId);
+
+            return query.getResultList();
+        } finally {
+            em.close();
         }
     }
 }
