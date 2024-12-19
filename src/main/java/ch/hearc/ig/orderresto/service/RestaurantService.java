@@ -1,24 +1,23 @@
 package ch.hearc.ig.orderresto.service;
 
 import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.persistence.mapper.RestaurantMapper;
-import ch.hearc.ig.orderresto.persistence.util.DataBaseConnection;
+import ch.hearc.ig.orderresto.persistence.util.HibernateUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 public class RestaurantService {
 
-    private final RestaurantMapper restaurantMapper;
+    public List<Restaurant> findAllRestaurants() {
+        EntityManager em = HibernateUtil.getEntityManager();
 
-    public RestaurantService(RestaurantMapper restaurantMapper) {
-        this.restaurantMapper = restaurantMapper;
-    }
-
-    public List<Restaurant> findAllRestaurants() throws SQLException {
-        try (Connection conn = DataBaseConnection.getConnection()) {
-            return restaurantMapper.findAll(conn);
+        try {
+            TypedQuery<Restaurant> query = em.createQuery(
+                    "SELECT r FROM Restaurant r", Restaurant.class);
+            return query.getResultList();
+        } finally {
+            em.close();
         }
     }
 }

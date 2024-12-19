@@ -15,7 +15,7 @@ public class Main {
     // Initialisation des services
     CustomerService customerService = new CustomerService();
     ProductService productService = new ProductService(productMapper, restaurantMapper);
-    RestaurantService restaurantService = new RestaurantService(restaurantMapper);
+    RestaurantService restaurantService = new RestaurantService();
     OrderService orderService = new OrderService(orderMapper);
 
     // Lancement de l'application via MainCLI
