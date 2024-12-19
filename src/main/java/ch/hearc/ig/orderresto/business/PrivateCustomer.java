@@ -19,13 +19,23 @@ public class PrivateCustomer extends Customer {
 
     public PrivateCustomer(Long id, String phone, String email, Address address, String gender, String firstName, String lastName) {
         super(id, phone, email, address);
-        this.gender = gender;
+        this.setGender(gender);
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
     public String getGender() {
         return gender;
+    }
+
+    public void setGender(String uiGender) {
+        if ("H".equalsIgnoreCase(uiGender)) {
+            this.gender = "N"; // Homme -> Non (N'est pas une femme)
+        } else if ("F".equalsIgnoreCase(uiGender)) {
+            this.gender = "O"; // Femme -> Oui (Est une femme)
+        } else {
+            throw new IllegalArgumentException("Invalid gender value: " + uiGender);
+        }
     }
 
     public String getFirstName() {
