@@ -3,7 +3,6 @@ package ch.hearc.ig.orderresto.business;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 
 @Entity
 @DiscriminatorValue("O")
@@ -25,9 +24,5 @@ public class OrganizationCustomer extends Customer {
 
     public String getName() {
         return name;
-    }
-
-    public String getLegalForm() {
-        return legalForm;
     }
 }

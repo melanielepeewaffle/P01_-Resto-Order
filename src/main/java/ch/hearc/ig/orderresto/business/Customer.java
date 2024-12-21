@@ -43,24 +43,12 @@ public abstract class Customer {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public Set<Order> getOrders() {
         return orders;
-    }
-
-    public Address getAddress() {
-        return address;
     }
 
     public void addOrder(Order order) {

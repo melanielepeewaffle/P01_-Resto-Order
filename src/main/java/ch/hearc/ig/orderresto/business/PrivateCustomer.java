@@ -24,10 +24,6 @@ public class PrivateCustomer extends Customer {
         this.lastName = lastName;
     }
 
-    public String getGender() {
-        return gender;
-    }
-
     public void setGender(String uiGender) {
         if ("H".equalsIgnoreCase(uiGender)) {
             this.gender = "N"; // Homme -> Non (N'est pas une femme)

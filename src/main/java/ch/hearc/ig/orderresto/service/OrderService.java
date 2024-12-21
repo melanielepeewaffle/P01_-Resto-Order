@@ -3,7 +3,6 @@ package ch.hearc.ig.orderresto.service;
 import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.persistence.util.HibernateUtil;
 import jakarta.persistence.EntityManager;
-import org.hibernate.Hibernate;
 
 import java.util.List;
 

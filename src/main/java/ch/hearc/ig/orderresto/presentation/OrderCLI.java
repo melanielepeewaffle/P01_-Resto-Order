@@ -9,7 +9,6 @@ import ch.hearc.ig.orderresto.service.OrderService;
 import ch.hearc.ig.orderresto.service.ProductService;
 import ch.hearc.ig.orderresto.service.RestaurantService;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
